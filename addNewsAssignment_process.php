@@ -1,5 +1,5 @@
 <?php
-
+include 'sweet_alert.php';
 session_start();
 if (!isset($_SESSION["admin"])) {
     header("location:index.php");
@@ -7,11 +7,9 @@ if (!isset($_SESSION["admin"])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
     require_once 'configs/connect.php';
 
     if (isset($_POST["newsUpload"])) {
-
         // หัวข้อข่าว
         $newsassignment_id = $_POST["newsassignment_id"];
         $news_name = $_POST["news_name"];
@@ -35,7 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (in_array(strtolower($extension), $allowedExtensions)) {
                 $name_pic = uniqid("regnews_", false) . "." . $extension;
                 $uploadFile = $UPLOADDIR . $name_pic;
-                // echo $uploadFile ;
 
                 if (move_uploaded_file($news_pic["tmp_name"], $uploadFile)) {
                     try {
@@ -49,35 +46,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $queryCreateNews->execute();
 
                         if ($queryCreateNews->rowCount() > 0) {
-                            echo "News created successfully!";
+                            echo "<script> Swal.fire({
+                                    icon: 'success',
+                                    title: 'เพิ่มข้อมูลสำเร็จ',
+                                    text: '',
+                                    confirmButtonText: 'ตกลง'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = 'newsAssignmentManagement.php';
+                                    }
+                                })</script>";
                         } else {
-                            echo "Failed to save news in database.";
+                            echo "<script> Swal.fire({
+                                    icon: 'error',
+                                    title: 'ไม่สามารถเพิ่มข้อมูลได้',
+                                    text: 'กรุณาลองใหม่อีกครั้ง',
+                                    confirmButtonText: 'ตกลง'
+                                })</script>";
                         }
                     } catch (PDOException $error) {
                         echo "Error: " . $error->getMessage();
                     }
                 } else {
-                    echo "Failed to upload the image.";
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Failed to upload the image.',
+                            confirmButtonText: 'Try Again'
+                        });
+                    </script>";
                 }
             } else {
-                echo "Invalid file type.";
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File Type!',
+                        text: 'Only JPG, JPEG, PNG, and GIF files are allowed.',
+                        confirmButtonText: 'OK'
+                     }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = 'newsAssignmentManagement.php';
+                                    }
+                                })</script>";
             }
         }
+
         // ส่วนเนื้อหา ที่เป็น text
         $content_desc = $_POST["content_desc"];
         $count_content_desc = count($content_desc); //นับจำนวน content_desc
         $content_id_text = $_POST["content_id_text"];
 
         if (isset($content_desc)) {
-            // echo "have content_desc $count_content_desc content " ;
             $content_type = "text";
 
-            // วนลูปเพิ่มในฐานข้อมูล
             for ($i = 0; $i < $count_content_desc; $i++) {
-
                 try {
-
-                    $query_content = $conn->prepare("INSERT INTO newsassignment_content(content_id,content_desc,content_type,newsassignment_id) VALUES(:content_id,:content_desc,:content_type,:newsassignment_id) ");
+                    $query_content = $conn->prepare("INSERT INTO newsassignment_content(content_id,content_desc,content_type,newsassignment_id) VALUES(:content_id,:content_desc,:content_type,:newsassignment_id)");
                     $query_content->bindParam(":content_desc", $content_desc[$i]);
                     $query_content->bindParam(":content_id", $content_id_text[$i]);
                     $query_content->bindParam(":content_type", $content_type);
@@ -85,25 +110,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $query_content->execute();
 
                     if ($query_content->rowCount() > 0) {
-                        echo "insert content desc success";
+                        echo "<script>
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Image has been successfully uploaded.',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = 'newsAssignmentManagement.php';
+                                    }
+                                })</script>";
                     } else {
-                        echo "fail to insert content desc";
+                        echo "Failed to insert pic desc<br>";
                     }
                 } catch (PDOException $err) {
-                    echo "error : " . $err->getMessage();
+                    echo "Error : " . $err->getMessage();
                 }
             }
         }
 
         // ส่วนของเนื้อหาที่เป็น รูปภาพ
         $content_pic = $_FILES["content_pic"];
-        $content_id_pic = $_POST["content_id_pic"] ;
-
-        // ชื่อรูปภาพ
+        $content_id_pic = $_POST["content_id_pic"];
         $content_pic_name = $content_pic["name"];
-        $count_content_pic_name = count($content_pic_name); //นับแค่ชื่อไฟล์
+        $count_content_pic_name = count($content_pic_name);
 
-        // อัปโหลดรูปเนื้อหา
         if (isset($content_pic)) {
             $content_type = "img";
             for ($i = 0; $i < $count_content_pic_name; $i++) {
@@ -124,12 +156,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $query_content->bindParam(":content_type", $extension);
                                 $query_content->bindParam(":newsassignment_id", $newsassignment_id);
                                 $query_content->execute();
-
-                                if ($query_content->rowCount() > 0) {
-                                    echo "Insert content pic success<br>";
-                                } else {
-                                    echo "Failed to insert pic desc<br>";
-                                }
                             } catch (PDOException $err) {
                                 echo "Error: " . $err->getMessage();
                             }

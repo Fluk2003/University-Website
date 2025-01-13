@@ -22,6 +22,13 @@ try {
     <style>
         .team-member {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .team-member:hover {
@@ -30,14 +37,42 @@ try {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .team-member:hover .member-info h4 {
-            color: #34495e;
-            /* เปลี่ยนสีข้อความหัวข้อ */
+        .team-member .member-img img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
         }
 
-        .team-member:hover .member-info span a {
+        .team-member .member-info {
+            padding: 15px;
+            background: #fff;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .team-member .member-info h4 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .team-member .member-info span {
+            display: block;
+            margin: 5px 0;
+        }
+
+        .team-member .member-info a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .team-member .member-info a:hover {
             text-decoration: underline;
-            /* เพิ่มเส้นใต้ลิงก์ */
             color: #34495e;
         }
     </style>
@@ -73,29 +108,30 @@ try {
         <section id="news-section" class="news-section section light-background">
             <div class="container" data-aos="fade-up">
                 <section id="doctors" class="doctors section light-background">
-
                     <div class="container section-title" data-aos="fade-up">
                         <h2>ข่าวประกาศล่าสุด</h2>
                         <p>รับข้อมูลประกาศสำคัญเกี่ยวกับการเรียนการสอนและการลงทะเบียนจากสำนักงานได้ที่นี่</p>
                     </div>
 
-                    <div class="container ">
-
+                    <div class="container">
                         <div class="row gy-4">
-                            <!-- looping  -->
+                            <!-- Looping -->
                             <?php
                             $dir = "uploads/";
-                            // Use while loop to fetch results
                             while ($fetchNewsAssignment = $stmt->fetch(PDO::FETCH_ASSOC)) { ?>
-                                <div class="col-lg-3 col-md-6 d-flex align-items-stretch bringup " data-aos="fade-up" data-aos-delay="100">
+                                <div class="col-lg-3 col-md-6 d-flex align-items-stretch bringup" data-aos="fade-up" data-aos-delay="100">
                                     <div class="team-member">
                                         <div class="member-img">
-                                            <img src="<?php echo $dir . $fetchNewsAssignment["news_pic"]; ?>" class="img-fluid" alt="">
+                                            <img src="<?php echo $dir . $fetchNewsAssignment["news_pic"]; ?>" alt="">
                                         </div>
                                         <div class="member-info">
                                             <h4><?php echo $fetchNewsAssignment["news_name"] ?></h4>
-                                            <span class="mb-2"><?php echo  $fetchNewsAssignment["news_time"]; ?></span>
-                                            <span><a style="font-size: 15px;" href="news_deteail.php?newsassignment_id=<?php echo $fetchNewsAssignment["newsassignment_id"] ?>">อ่านรายละเอียดเพิ่มเติม</a></span>
+                                            <span class="mb-2"><?php echo $fetchNewsAssignment["news_time"]; ?></span>
+                                            <span>
+                                                <a href="news_deteail.php?newsassignment_id=<?php echo $fetchNewsAssignment["newsassignment_id"] ?>">
+                                                    อ่านรายละเอียดเพิ่มเติม
+                                                </a>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
